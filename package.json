@@ -1,0 +1,15 @@
+{
+  "name": "eslint-plugin-yell",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [
+    "babelHelpers",
+    "eslint",
+    "eslint-plugin",
+    "yell",
+    "yell-engineering"
+  ],
+  "author": "",
+  "license": "ISC"
+}
