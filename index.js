@@ -16,9 +16,11 @@ module.exports = {
 						 * stop if not an es6 file
 						 */
 						let isES6File = /(.*).es6$/.test(context.getFilename());
-						if ( !isES6File ) {
+						if (!isES6File) {
 							return;
 						}
+
+						const SEARCHTERM = 'babelHelpers';
 
 						// check if node is define?
 						const isDefine = node.name.toLowerCase() === 'define';
@@ -39,12 +41,17 @@ module.exports = {
 
 						// get function callback in define
 						const FunctionExpression = args.find(item => item.type === "FunctionExpression");
+						const ArrowFunctionExpression = args.find(item => item.type === "ArrowFunctionExpression");
 
-						// check if babelHelpers exists as a value in array
-						const babelExistsInArray = ArrayExpression && ArrayExpression.elements.find(item => item.value === 'babelHelpers');
+						// determine if any of them contain babelHelpers
+						const FunctionExpressionContainsBabel = (FunctionExpression && FunctionExpression.params.find(item => item.name === SEARCHTERM));
+						const ArrowFunctionContainsBabel = (ArrowFunctionExpression && ArrowFunctionExpression.params.find(item => item.name === SEARCHTERM));
+
+						// check ifSEARCHTERMexists as a value in array
+						const babelExistsInArray = ArrayExpression && ArrayExpression.elements.find(item => item.value === SEARCHTERM);
 
 						// check if babelHelpers exists as a parameter in function callback
-						const babelExistsInFunction = FunctionExpression && FunctionExpression.params.find(item => item.name === 'babelHelpers');
+						const babelExistsInFunction = FunctionExpressionContainsBabel || ArrowFunctionContainsBabel;
 
 						// create display message
 						let message = '';
