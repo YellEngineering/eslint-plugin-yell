@@ -83,18 +83,6 @@ module.exports = {
 								});
 							}
 						}
-
-
-
-						// // determine if any of them contain babelHelpers
-						// const FunctionExpressionContainsBabel = (FunctionExpression && FunctionExpression.params.find(item => item.name === SEARCHTERM));
-						// const ArrowFunctionContainsBabel = (ArrowFunctionExpression && ArrowFunctionExpression.params.find(item => item.name === SEARCHTERM));
-
-						// // check ifSEARCHTERMexists as a value in array
-						// const babelExistsInArray = ArrayExpression && ArrayExpression.elements.find(item => item.value === SEARCHTERM);
-
-						// // check if babelHelpers exists as a parameter in function callback
-						// const babelExistsInFunction = FunctionExpressionContainsBabel || ArrowFunctionContainsBabel;
 					}
 				};
 			}
