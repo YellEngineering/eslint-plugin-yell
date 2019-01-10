@@ -55,32 +55,40 @@ module.exports = {
 						const ArrayExpression = args.find(item => item.type === "ArrayExpression");
 
 						// get function callback in define
-						const FunctionExpression = args.find(item => item.type === "FunctionExpression");
+						const NormalFunctionExpression = args.find(item => item.type === "FunctionExpression");
 						const ArrowFunctionExpression = args.find(item => item.type === "ArrowFunctionExpression");
 
 
 						if ( options['checkInFunction'] ) {
-							const FunctionExpressionContainsParams = FunctionExpression && FunctionExpression.params.find(item => params.some(param => item.name === param));
-							const ArrowFunctionContainsParams = ArrowFunctionExpression && ArrowFunctionExpression.params.find(item => params.some(param => item.name === param));
 
-							const paramExistsInFunction = FunctionExpressionContainsParams || ArrowFunctionContainsParams;
+							const FunctionExpression = NormalFunctionExpression || ArrowFunctionExpression;
 
-							if ( !paramExistsInFunction ) {
-								context.report({
-									node,
-									message: 'babelHelpers missing in Define Function Callback'
-								});
+							if ( FunctionExpression && FunctionExpression.params.length > 0 ) {
+								const FunctionParameters = FunctionExpression.params.map(item => item.name);
+								params.forEach(param => {
+									if ( !FunctionParameters.includes(param) ) {
+										context.report({
+											node,
+											message: `${param} is missing in Define Function Callback`
+										});
+									}
+								})
 							}
 						}
 
 
 						if ( options['checkInArray'] ) {
-							const ArrayExpressionContainsParam = ArrayExpression && ArrayExpression.elements.find(item => params.some(param => item.value === param));
-							if ( !ArrayExpressionContainsParam ) {
-								context.report({
-									node,
-									message: 'babelHelpers missing in Define Array'
-								});
+
+							if ( ArrayExpression && ArrayExpression.elements.length > 0 ) {
+								const ArrayParameters = ArrayExpression.elements.map(item => item.value);
+								params.forEach(param => {
+									if ( !ArrayParameters.includes(param) ) {
+										context.report({
+											node,
+											message: `${param} is missing in Define Array`
+										});
+									}
+								})
 							}
 						}
 					}
@@ -132,21 +140,30 @@ module.exports = {
 
 						// get array in define
 						const ArrayExpression = args.find(item => item.type === "ArrayExpression");
+						const LiteralExpression = args.find(item => item.type === 'Literal');
+						let elementIsInvalid = null;
 
-						// get the element
-						const elementIsInvalid = ArrayExpression && ArrayExpression.elements && ArrayExpression.elements.find(item => {
+						const isInvalid = (item) => {
 							if ( item && item.value ) {
 								const isExclusion = excludePaths.some(toExclude => item.value.includes(toExclude));
 								return !isExclusion && (forceSlash ? item.value.includes('/') : true) && !item.value.includes(pathToCheckFor);
 							}
 							return null;
-						});
+						}
 
+						if ( ArrayExpression ) {
+							elementIsInvalid = ArrayExpression && ArrayExpression.elements && ArrayExpression.elements.find(item => isInvalid(item));
+						} else if ( LiteralExpression ) {
+							elementIsInvalid = isInvalid(LiteralExpression) ? LiteralExpression : false;
+						}
+
+						// get the element
 						if ( elementIsInvalid ) {
 							context.report({
 								node,
 								message: `Looks like ${elementIsInvalid.value} should have ${pathToCheckFor} extension`
 							});
+							return false;
 						}
 
 					}
